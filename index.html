@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WA Fishing Report</title>
+<style>
+:root{--bg:#f4f7f5;--card:#fff;--ink:#17302b;--muted:#61736e;--accent:#126b57;--danger:#a52c2c;--warn:#9a6711;--line:#dce6e2}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,#0d493e,#16735d);color:#fff;padding:24px 18px}
+.wrap{max-width:1100px;margin:auto}.brand{display:flex;justify-content:space-between;gap:16px;align-items:center}.brand h1{margin:0;font-size:28px}.brand p{margin:5px 0 0;opacity:.85}
+nav{display:flex;gap:8px;overflow:auto;margin-top:18px}nav button{border:0;border-radius:999px;padding:10px 15px;background:#ffffff1f;color:#fff;cursor:pointer;font-weight:700}nav button.active{background:#fff;color:#125a4b}
+main{padding:20px 18px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 3px 12px #17302b0b}.wide{grid-column:span 2}.stat{font-size:28px;font-weight:800}.muted{color:var(--muted);font-size:14px}.tag{display:inline-block;padding:4px 8px;border-radius:999px;background:#e8f3ef;color:#126b57;font-size:12px;font-weight:800;margin:3px 4px 3px 0}.danger{background:#fdeaea;color:var(--danger)}.warn{background:#fff5dc;color:var(--warn)}
+h2{margin:0 0 10px;font-size:20px}h3{margin:0 0 7px;font-size:17px}.item{padding:13px 0;border-top:1px solid var(--line)}.item:first-child{border-top:0}.item p{margin:5px 0;line-height:1.4}
+.controls{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:15px}.controls input,.controls select{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;min-width:180px}
+a{color:var(--accent);font-weight:700;text-decoration:none}.source{font-size:12px;color:var(--muted)}
+.hidden{display:none}.footer{margin-top:20px;padding:18px;color:var(--muted);font-size:12px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.wide{grid-column:span 1}.brand{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="brand"><div><h1>🎣 WA Fishing Report</h1><p>Washington sport fishing reports, regulations & emergency changes</p></div><div><strong>Season</strong><br>2026–2027</div></div>
+<nav>
+<button class="active" onclick="showTab('dashboard',this)">Dashboard</button>
+<button onclick="showTab('reports',this)">Fishing Reports</button>
+<button onclick="showTab('regulations',this)">Regulations</button>
+<button onclick="showTab('alerts',this)">Emergency Rules</button>
+<button onclick="showTab('sources',this)">Official Sources</button>
+</nav>
+</div></header>
+
+<main class="wrap">
+<section id="dashboard">
+<div class="controls"><input id="search" placeholder="Search river, lake, species..." oninput="renderReports()">
+<select id="region" onchange="renderReports()"><option value="">All regions</option><option>Puget Sound</option><option>Coast</option><option>Southwest</option><option>Eastern Washington</option><option>Central Washington</option></select></div>
+<div class="grid">
+<div class="card"><div class="muted">Emergency rule updates</div><div class="stat">16+</div><p class="muted">Current items surfaced by WDFW's emergency-rules index.</p></div>
+<div class="card"><div class="muted">Current season</div><div class="stat">2026–27</div><p class="muted">July 1, 2026 – June 30, 2027</p></div>
+<div class="card"><div class="muted">Data source</div><div class="stat">WDFW</div><p class="muted">Official regulations and reports should control.</p></div>
+<div class="card wide"><h2>⚠️ Important current changes</h2><div id="alertList"></div></div>
+<div class="card"><h2>📍 Quick links</h2>
+<p><a href="https://wdfw.wa.gov/fishing/regulations" target="_blank">2026–27 fishing regulations</a></p>
+<p><a href="https://wdfw.wa.gov/fishing/regulations/emergency-rules" target="_blank">Emergency rules</a></p>
+<p><a href="https://wdfw.wa.gov/fishing/reports" target="_blank">WDFW fishing & stocking reports</a></p>
+<p><a href="https://wdfw.wa.gov/fishing/reports/creel" target="_blank">Creel & catch reports</a></p>
+</div>
+<div class="card"><h2>🎯 How this app should work</h2><p class="muted">Pick a water, species, or region to see current reports, regulations, closures, limits, stocking, and links to the underlying WDFW source.</p></div>
+</div>
+</section>
+
+<section id="reports" class="hidden">
+<div class="card"><h2>Fishing reports</h2><div class="controls"><input id="search2" placeholder="Search..." oninput="filterReportPage()"><select id="type2" onchange="filterReportPage()"><option value="">All types</option><option>Creel</option><option>Stocking</option><option>Ocean</option><option>Salmon</option></select></div><div id="reportList"></div></div>
+</section>
+
+<section id="regulations" class="hidden">
+<div class="grid">
+<div class="card wide"><h2>Regulations hub</h2><p>Use the official WDFW regulation pages for the legally controlling rule. This app is a convenience layer and should always link back to the source.</p>
+<div class="item"><h3>2026–27 Sport Fishing Rules</h3><p>Statewide rules for July 1, 2026 through June 30, 2027.</p><a href="https://wdfw.wa.gov/fishing/regulations" target="_blank">Open WDFW regulations →</a></div>
+<div class="item"><h3>Emergency rules</h3><p>Changes can modify the printed pamphlet during the season.</p><a href="https://wdfw.wa.gov/fishing/regulations/emergency-rules" target="_blank">Open emergency rules →</a></div>
+</div>
+<div class="card"><h2>Species</h2><span class="tag">Salmon</span><span class="tag">Steelhead</span><span class="tag">Trout</span><span class="tag">Halibut</span><span class="tag">Sturgeon</span><span class="tag">Bass</span><span class="tag">Walleye</span><span class="tag">Crab</span><p class="source">Species-specific rules should be checked against the exact water body and date.</p></div>
+</div>
+</section>
+
+<section id="alerts" class="hidden"><div class="card"><h2>Emergency rules — current-season examples</h2><p class="muted">These are surfaced from WDFW's emergency-rule index. Tap a source before fishing.</p><div id="allAlerts"></div></div></section>
+
+<section id="sources" class="hidden"><div class="card"><h2>Official sources</h2>
+<div class="item"><h3>Washington Department of Fish & Wildlife</h3><a href="https://wdfw.wa.gov/" target="_blank">wdfw.wa.gov</a></div>
+<div class="item"><h3>Fishing & stocking reports</h3><a href="https://wdfw.wa.gov/fishing/reports" target="_blank">WDFW reports</a></div>
+<div class="item"><h3>Creel & catch reports</h3><a href="https://wdfw.wa.gov/fishing/reports/creel" target="_blank">WDFW creel reports</a></div>
+<div class="item"><h3>Ocean sport salmon quota report</h3><a href="https://wdfw.wa.gov/fishing/reports/creel/ocean" target="_blank">WDFW ocean quota report</a></div>
+<div class="item"><h3>Fish Washington app</h3><a href="https://wdfw.wa.gov/fishing/regulations/app" target="_blank">Official WDFW mobile app information</a></div>
+</div></section>
+
+<div class="footer">Prototype for a Washington fishing-information app. Regulations can change quickly. Always verify the exact water, date, species, gear, and emergency rules on WDFW before fishing.</div>
+</main>
+
+<script>
+const alerts=[
+["Sep 17–Jan 14","North Fork Stillaguamish closed to all fishing; Stillaguamish River mainstem remains closed until further notice.","danger"],
+["Sep 16–Oct 31","Snake River fall Chinook fishery update.","warn"],
+["Sep 16–Jan 13","Snake River hatchery steelhead fishing update.","warn"],
+["Sep 16–Jan 13","Tucannon River hatchery steelhead fishing update.","warn"],
+["Sep 15–Sep 30","Satsop River temporarily closes to fishing.","danger"],
+["Sep 14–Dec 31","Salmon fishing closes in Lake Washington.","danger"],
+["Sep 11–Oct 31","Yakima River fall salmon fishery opens.","warn"],
+["Sep 11–Dec 31","Skagit and Cascade River fishing updates.","warn"],
+["Sep 10–Oct 31","Lower Columbia River salmon and steelhead fishery update.","warn"],
+["Sep 8–Dec 31","Quillayute River closes to all fishing due to low flows and poor water conditions.","danger"]
+];
+const reports=[
+["Puget Sound","Salmon","Creel","Puget Sound creel reports are collected at access sites throughout the season.","https://wdfw.wa.gov/fishing/reports/creel"],
+["Coast","Salmon","Ocean","Ocean sport salmon quota and in-season management information; updated weekly.","https://wdfw.wa.gov/fishing/reports/creel/ocean"],
+["Southwest","Mixed","Creel","Southwest Washington fishing reports, including Columbia River information.","https://wdfw.wa.gov/fishing/reports/creel"],
+["Coast","Mixed","Creel","North coast creel surveys provide catch information from Olympic Peninsula rivers.","https://wdfw.wa.gov/fishing/reports/creel"],
+["Eastern Washington","Trout","Stocking","WDFW stocking reports identify lakes and streams receiving hatchery fish.","https://wdfw.wa.gov/fishing/reports"],
+["Statewide","Mixed","Reports","WDFW fishing and stocking reports include creel/catch, stocking, fish counts and voluntary trip reports.","https://wdfw.wa.gov/fishing/reports"]
+];
+function showTab(id,btn){document.querySelectorAll('main>section').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');}
+function alertHTML(a){return `<div class="item"><span class="tag ${a[2]}">${a[0]}</span><p>${a[1]}</p><a href="https://wdfw.wa.gov/fishing/regulations/emergency-rules" target="_blank">Verify with WDFW →</a></div>`}
+document.getElementById('alertList').innerHTML=alerts.slice(0,5).map(alertHTML).join('');
+document.getElementById('allAlerts').innerHTML=alerts.map(alertHTML).join('');
+function reportHTML(r){return `<div class="item"><span class="tag">${r[0]}</span><span class="tag">${r[1]}</span><span class="tag">${r[2]}</span><h3>${r[2]} — ${r[1]}</h3><p>${r[3]}</p><a href="${r[4]}" target="_blank">Open source report →</a></div>`}
+function renderReports(){let q=(document.getElementById('search').value||'').toLowerCase(),reg=document.getElementById('region').value;let a=reports.filter(r=>(!q||r.join(' ').toLowerCase().includes(q))&&(!reg||r[0]===reg));document.getElementById('reportList').innerHTML=a.map(reportHTML).join('')||'<p class="muted">No matching reports.</p>'}
+function filterReportPage(){let q=(document.getElementById('search2').value||'').toLowerCase(),t=document.getElementById('type2').value;let a=reports.filter(r=>(!q||r.join(' ').toLowerCase().includes(q))&&(!t||r[2]===t));document.getElementById('reportList').innerHTML=a.map(reportHTML).join('')||'<p class="muted">No matching reports.</p>'}
+renderReports();
+</script>
+</body></html>
